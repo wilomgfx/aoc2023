@@ -50,6 +50,10 @@
   color: black;
 }
 
+.card pre::after {
+  content: "⎘";
+}
+
 .read-the-docs {
   color: #888;
 }

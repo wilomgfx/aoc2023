@@ -1,7 +1,7 @@
 import { expect, it, describe } from "vitest";
 import { part1, part2 } from "./day";
 import input from "./input";
-describe("Day2", () => {
+describe("Day{n}", () => {
   describe("Part1", () => {
     it("should return the correct answer for the example provided", () => {
       const input = `1abc2

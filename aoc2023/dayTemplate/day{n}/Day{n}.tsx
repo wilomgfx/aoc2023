@@ -1,12 +1,12 @@
 import Day from "../../day/Day";
 import input from "./input";
 import { part1, part2 } from "./day";
-const Day1 = () => {
+const Day{n} = () => {
   const part1Answer = part1(input);
   const part2Answer = part2(input);
   return (
-    <Day dayNumber={1} part1Answer={part1Answer} part2Answer={part2Answer} />
+    <Day dayNumber={n} part1Answer={part1Answer} part2Answer={part2Answer} />
   );
 };
 
-export default Day1;
+export default Day{n};

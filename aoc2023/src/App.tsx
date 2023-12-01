@@ -1,7 +1,7 @@
 import AocLogo from "./assets/aoc-logo.png";
 import "./App.css";
-import { default as Day1 } from "./days/day1/Day1";
-import { default as Day2 } from "./days/day2/Day2";
+import Day1 from "./days/day1/Day1";
+import Day2 from "./days/day2/Day2";
 
 function App() {
   return (

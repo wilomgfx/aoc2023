@@ -44,6 +44,12 @@
   background-color: #3f3e3e;
 }
 
+.card pre {
+  cursor: copy;
+  background-color: azure;
+  color: black;
+}
+
 .read-the-docs {
   color: #888;
 }

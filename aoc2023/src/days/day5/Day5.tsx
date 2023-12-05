@@ -1,8 +1,8 @@
 import Day from "../../day/Day";
 import input from "./input";
 import { part1, part2 } from "./day";
-const DAY_NUMBER = 1;
-const Day1 = () => {
+const DAY_NUMBER = 5;
+const Day5 = () => {
   //part1
   const part1Start = performance.now();
   const part1Answer = part1(input);
@@ -24,4 +24,4 @@ const Day1 = () => {
   );
 };
 
-export default Day1;
+export default Day5;

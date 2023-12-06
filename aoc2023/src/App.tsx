@@ -5,6 +5,7 @@ import Day2 from "./days/day2/Day2";
 import Day3 from "./days/day3/Day3";
 import Day4 from "./days/day4/Day4";
 import Day5 from "./days/day5/Day5";
+import Day6 from "./days/day6/Day6";
 
 function App() {
   return (
@@ -30,6 +31,9 @@ function App() {
         </div>
         <div className="card">
           <Day5 />
+        </div>
+        <div className="card">
+          <Day6 />
         </div>
       </div>
     </>

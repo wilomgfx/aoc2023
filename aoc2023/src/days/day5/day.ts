@@ -1,64 +1,28 @@
-// type MapObject = {
-//   [key: string]: { [key: number]: number[] };
-// };
-
-// const parseArray = (arr: string[]): MapObject => {
-//   let mapName = "";
-//   const result: MapObject = {};
-
-//   for (const [index, line] of arr.entries()) {
-//     if (line.includes("map")) {
-//       mapName = line.replace(" map:", "");
-
-//       result[mapName] = {};
-//     } else {
-//       const [key, ...values] = line.split(" ").map(Number);
-//       if (!isNaN(key)) {
-//         result[mapName][index] = [key, ...values];
-//       }
-//     }
-//   }
-
-//   return result;
-// };
-
-// const numberRange = (start: number, end: number) => {
-//   return new Array(end - start).fill(undefined).map((d, i) => i + start);
-// };
-// const parseNumbers = (str: string) =>
-//   str
-//     .split(" ")
-//     .filter((x) => x !== "")
-//     .map((x) => parseInt(x));
-// const groupNumbers = (numbers: number[], grouping: number): number[][] =>
-//   Array.from({ length: numbers.length / grouping }, (_, i) =>
-//     numbers.slice(i * grouping, i * grouping + grouping)
-//   );
-
 const part1 = (input: string) => {
-  // let [seeds, ...maps] = input.split("\n\n");
-  // seeds = seeds.match(/\d+/g).map(Number);
-  // for (let map of maps) {
-  //   map = map
-  //     .split("\n")
-  //     .slice(1)
-  //     .map((line) => line.match(/\d+/g).map(Number));
-  //   for (let i = 0; i < seeds.length; i++) {
-  //     const seed = seeds[i];
-  //     for (const [dest, source, len] of map) {
-  //       if (seed >= source && seed < source + len) {
-  //         seeds[i] = seeds[i] - source + dest;
-  //         break;
-  //       }
-  //     }
-  //   }
-  // }
+  const inputs = input.trim().split("\n\n");
 
-  // const mappedInputs = parseArray(inputs);
-
-  const DESTINATION_RANGE_START_INDEX = 0;
-  const SOURCE_RANGE_START_INDEX = 1;
-  const RANGE_LENGTH_INDEX = 2;
+  const [seeds, ...mappings] = inputs;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
+  const seedNumbers = seeds.match(/\d+/g).map(Number);
+  for (const mapping of mappings) {
+    const newMap = mapping
+      .trim()
+      .split("\n")
+      .slice(1)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
+      .map((line) => line.match(/\d+/g).map(Number));
+    for (let i = 0; i < seedNumbers.length; i++) {
+      const seed = seedNumbers[i];
+      for (const [dest, source, len] of newMap) {
+        if (seed >= source && seed < source + len) {
+          seedNumbers[i] = seedNumbers[i] - source + dest;
+          break;
+        }
+      }
+    }
+  }
 
   // const seedSoilMap = Object.values(mappedInputs["seed-to-soil"]).map((mi) => {
   //   const [destinationRangeStart, sourceRangeStart, rangeLength] = mi;
@@ -149,17 +113,56 @@ const part1 = (input: string) => {
   //   };
   // });
 
-  const answer = "N/A";
+  const answer = Math.min(...seedNumbers);
   return answer;
 };
 
 const part2 = (input: string) => {
-  const inputs = input
-    .split("\n")
-    .map((i) => i.trim())
-    .filter((i) => i !== "");
+  const inputs = input.trim().split("\n\n");
 
-  const answer = "N/A";
+  const [seeds, ...mappings] = inputs;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
+  const seedNumbers = seeds.match(/\d+/g).map(Number);
+  const nextSeeds: number[][] = [];
+  let allTheSeeds: number[][] = [];
+  for (let i = 0; i < seedNumbers.length; i += 2) {
+    nextSeeds.push([seedNumbers[i], seedNumbers[i] + seedNumbers[i + 1] - 1]);
+  }
+  allTheSeeds = nextSeeds;
+
+  for (const mapping of mappings) {
+    const newMap = mapping
+      .trim()
+      .split("\n")
+      .slice(1)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
+      .map((line) => line.match(/\d+/g).map(Number));
+
+    const movedSeeds = [];
+    for (const [dest, source, len] of newMap) {
+      const unmovedSeeds = [];
+      for (const [start, end] of allTheSeeds) {
+        if (start < source + len && end >= source) {
+          movedSeeds.push([
+            Math.max(start, source) - source + dest,
+            Math.min(end, source + len - 1) - source + dest,
+          ]);
+        }
+        if (start < source) {
+          unmovedSeeds.push([start, Math.min(end, source - 1)]);
+        }
+        if (end >= source + len) {
+          unmovedSeeds.push([Math.max(start, source + len), end]);
+        }
+      }
+      allTheSeeds = unmovedSeeds;
+    }
+    allTheSeeds.push(...movedSeeds);
+  }
+
+  const answer = Math.min(...allTheSeeds.flat());
   return answer;
 };
 

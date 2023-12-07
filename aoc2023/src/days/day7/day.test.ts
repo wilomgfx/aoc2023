@@ -1,6 +1,16 @@
 import { expect, it, describe } from "vitest";
 import { part1, part2 } from "./day";
 import input from "./input";
+
+// const handTypeMappingExample = `
+// AAAAA 100
+// AA8AA 92
+// 23332 12
+// TTT98 11
+// 23432 333
+// A23A4 121
+// 23456 114
+// `;
 describe("Day7", () => {
   describe("Part1", () => {
     it("should return the correct answer for the example provided", () => {
@@ -11,7 +21,7 @@ describe("Day7", () => {
       KTJJT 220
       QQQJA 483
       `;
-      const expected = 142;
+      const expected = 6440;
       expect(part1(input)).toBe(expected);
     });
     it("should return the correct answer for part 1", () => {

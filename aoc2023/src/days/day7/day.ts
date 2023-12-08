@@ -136,42 +136,34 @@ const part1 = (input: string) => {
     {} as Record<string, string[]>
   );
 
-  const handsRankRanking = Object.keys(handsOrderingMapping).reduce(
-    (acc, curr) => {
-      const hands = handsOrderingMapping[curr];
-      const handsSorted = hands.sort((a, b) => {
-        const aLabels = a.split("").join("");
-        const bLabels = b.split("").join("");
-        for (let i = 0; i < aLabels.length; i++) {
-          const aLabel = aLabels[i];
-          const bLabel = bLabels[i];
-          if (
-            CARD_LABEL_RANKING.indexOf(bLabel) >
-            CARD_LABEL_RANKING.indexOf(aLabel)
-          ) {
-            return -1;
-          }
-          if (
-            CARD_LABEL_RANKING.indexOf(bLabel) <
-            CARD_LABEL_RANKING.indexOf(aLabel)
-          ) {
-            return 1;
-          }
-        }
-        return 0;
-      });
-      acc[curr] = handsSorted;
-      return acc;
-    },
-    {} as Record<string, string[]>
-  );
+  // const orderedHandsOrderingMapping = Object.keys(handsOrderingMapping)
+  //   .sort((a, b) => {
+  //     const aRank = HAND_TYPE_RANKING[a];
+  //     const bRank = HAND_TYPE_RANKING[b];
+  //     if (aRank < bRank) {
+  //       return -1;
+  //     }
+  //     if (aRank > bRank) {
+  //       return 1;
+  //     }
+  //     return 0;
+  //   })
+  //   .reduce((obj, key) => {
+  //     obj[key] = handsOrderingMapping[key];
+  //     return obj;
+  //   }, {} as Record<string, string[]>);
 
   const handsRankMapping = Object.keys(handsOrderingMapping).reduce(
     (acc, curr) => {
       const hands = handsOrderingMapping[curr];
+      const numberOfHandsTypes = Object.keys(handsTypesGrouped).length;
+      const minRank = clamp(HAND_TYPE_RANKING[curr], 1, numberOfHands);
+
       hands.forEach((h, i) => {
-        acc[h] = clamp(i + HAND_TYPE_RANKING[curr], 1, numberOfHands);
+        const rank = clamp(i + minRank, minRank, numberOfHands);
+        acc[h] = rank;
       });
+
       return acc;
     },
     {} as Record<string, number>

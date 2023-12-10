@@ -13,7 +13,7 @@ describe("Day9", () => {
       expect(part1(input)).toBe(expected);
     });
     it("should return the correct answer for part 1", () => {
-      expect(part1(input)).toBe(53194);
+      expect(part1(input)).toBe(1789635132);
     });
   });
 
@@ -24,11 +24,11 @@ describe("Day9", () => {
       1 3 6 10 15 21
       10 13 16 21 30 45
       `;
-      const expected = 281;
+      const expected = 2;
       expect(part2(input)).toBe(expected);
     });
     it("should return the correct answer for part 2", () => {
-      expect(part2(input)).toBe(54249);
+      expect(part2(input)).toBe(913);
     });
   });
 });

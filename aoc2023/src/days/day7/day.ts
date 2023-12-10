@@ -1,182 +1,78 @@
-enum HandTypes {
-  HighCard = "HighCard",
-  OnePair = "OnePair",
-  TwoPair = "TwoPair",
-  ThreeOfAKind = "ThreeOfAKind",
-  FullHouse = "FullHouse",
-  FourOfAKind = "FourOfAKind",
-  FiveOfAKind = "FiveOfAKind",
-  Unknown = "Unknown",
-}
-
-// 23456789TJQKA
-// const CARD_LABEL_RANKING = "23456789AJKQT";
-const CARD_LABEL_RANKING = "23456789TJQKA";
-
-const HAND_TYPE_RANKING = {
-  [HandTypes.FiveOfAKind]: 6,
-  [HandTypes.FourOfAKind]: 5,
-  [HandTypes.FullHouse]: 4,
-  [HandTypes.ThreeOfAKind]: 3,
-  [HandTypes.TwoPair]: 2,
-  [HandTypes.OnePair]: 1,
-  [HandTypes.HighCard]: 0,
-} as Record<string, number>;
-
-/**
- * Returns a number whose value is limited to the given range.
- *
- * @param {Number} val The initial value
- * @param {Number} min The lower boundary
- * @param {Number} max The upper boundary
- * @returns {Number} A number in the range (min, max)
- */
-const clamp = (val: number, min: number, max: number): number =>
-  Math.min(Math.max(val, min), max);
-
-const computeHandType = (hand: string) => {
-  const cards = hand.split("");
-  const cardGroups = cards.reduce(
-    (a, c) => ((a[c] = a[c] || 0), a[c]++, a),
+const CARD_LABEL_RANKINGS = "AKQJT98765432".split("");
+const countCards = (str: string[]): Record<string, number> =>
+  str.reduce(
+    (acc, v) => ({ ...acc, [v]: (acc[v] ?? 0) + 1 }),
     {} as Record<string, number>
   );
-  const cardGroupsKeys = Object.keys(cardGroups);
-  if (cardGroupsKeys.length === 5) {
-    // HighCard
-    return HandTypes.HighCard;
-  }
-  if (cardGroupsKeys.length === 1) {
-    // FiveOfAKind
-    return HandTypes.FiveOfAKind;
-  }
-  if (cardGroupsKeys.some((k) => cardGroups[k] === 4)) {
-    // FourOfAKind
-    return HandTypes.FourOfAKind;
-  }
-  if (cardGroupsKeys.some((k) => cardGroups[k] === 3)) {
-    // ThreeOfAKind
-    const remainingCards = cardGroupsKeys.filter((k) => cardGroups[k] !== 3);
-    if (remainingCards.length === 2) {
-      // ThreeOfAKind
-      return HandTypes.ThreeOfAKind;
-    }
-    return HandTypes.FullHouse;
-  }
-  if (cardGroupsKeys.some((k) => cardGroups[k] === 2)) {
-    // OnePair
-    const remainingCards = cardGroupsKeys.filter((k) => cardGroups[k] !== 2);
-    if (remainingCards.length === 3) {
-      // OnePair
-      return HandTypes.OnePair;
-    }
-    return HandTypes.TwoPair;
-  }
 
-  return HandTypes.Unknown;
+const cardsTypes = <Array<(counts: number[]) => boolean>>[
+  (counts) => counts.some((x) => x === 5),
+  (counts) => counts.some((x) => x === 4),
+  (counts) => counts.some((x) => x === 3) && counts.some((x) => x === 2),
+  (counts) => counts.some((x) => x === 3),
+  (counts) => counts.filter((x) => x === 2).length === 2,
+  (counts) => counts.some((x) => x === 2),
+  (_) => true,
+];
+
+const cardsTypesWithJokers = <
+  Array<(counts: number[], jokersCount: number) => boolean>
+>[
+  (counts, jokersCount) =>
+    jokersCount === 5 || counts.some((x) => x === 5 - jokersCount),
+  (counts, jokersCount) => counts.some((x) => x === 4 - jokersCount),
+  (counts, jokersCount) => {
+    const indx = counts.findIndex((x) => x === 3 - jokersCount);
+    return indx !== -1 && counts.some((x, i) => x === 2 && indx !== i);
+  },
+  (counts, jokersCount) => counts.some((x) => x === 3 - jokersCount),
+  (counts, _) => counts.filter((x) => x === 2).length === 2,
+  (counts, jokersCount) => counts.some((x) => x === 2 - jokersCount),
+  (_) => true,
+];
+
+const getCardsTypeIndex = (cardLetters: string[]): number => {
+  const cardsCount = Object.values(countCards(cardLetters));
+  return cardsTypes.findIndex((x) => x(cardsCount));
 };
-
 const part1 = (input: string) => {
   const inputs = input
     .split("\n")
     .map((i) => i.trim())
     .filter((i) => i !== "");
 
-  const handsBidMapping = inputs.reduce((acc, curr) => {
-    const [hand, bid] = curr.split(" ");
-    acc[hand] = bid;
-    return acc;
-  }, {} as Record<string, string>);
+  const handsBids = inputs
+    .map((x) => x.split(" "))
+    .map(
+      ([cards, bid]) => <[string[], number]>[cards.split(""), parseInt(bid)]
+    );
 
-  const numberOfHands = Object.keys(handsBidMapping).length;
+  const cardOrder = (cardsA: string[], cardsB: string[]) => {
+    for (let i = 0; i < 5; i++) {
+      const aIndx = CARD_LABEL_RANKINGS.indexOf(cardsA[i]);
+      const bIndx = CARD_LABEL_RANKINGS.indexOf(cardsB[i]);
 
-  const handsTypeMapping = Object.keys(handsBidMapping).reduce((acc, curr) => {
-    const hand = curr;
-    const handType = computeHandType(hand);
-    acc[hand] = handType;
-    return acc;
-  }, {} as Record<string, string>);
+      if (aIndx < bIndx) return 1;
+      if (aIndx > bIndx) return -1;
+    }
 
-  const handsTypesGrouped = Object.keys(handsTypeMapping).reduce(
-    (acc, curr) => {
-      const handType = handsTypeMapping[curr];
-      acc[handType] = acc[handType] || [];
-      acc[handType].push(curr);
-      return acc;
-    },
-    {} as Record<string, string[]>
-  );
+    return 0;
+  };
 
-  const handsOrderingMapping = Object.keys(handsTypesGrouped).reduce(
-    (acc, curr) => {
-      const hands = handsTypesGrouped[curr];
-      const handsSorted = hands.sort((a, b) => {
-        const aLabels = a.split("").join("");
-        const bLabels = b.split("").join("");
-        for (let i = 0; i < aLabels.length; i++) {
-          const aLabel = aLabels[i];
-          const bLabel = bLabels[i];
-          if (
-            CARD_LABEL_RANKING.indexOf(bLabel) >
-            CARD_LABEL_RANKING.indexOf(aLabel)
-          ) {
-            return -1;
-          }
-          if (
-            CARD_LABEL_RANKING.indexOf(bLabel) <
-            CARD_LABEL_RANKING.indexOf(aLabel)
-          ) {
-            return 1;
-          }
-        }
-        return 0;
-      });
-      acc[curr] = handsSorted;
-      return acc;
-    },
-    {} as Record<string, string[]>
-  );
+  const sortCards = (cardsA: string[], cardsB: string[]) => {
+    const typeA = getCardsTypeIndex(cardsA);
+    const typeB = getCardsTypeIndex(cardsB);
 
-  // const orderedHandsOrderingMapping = Object.keys(handsOrderingMapping)
-  //   .sort((a, b) => {
-  //     const aRank = HAND_TYPE_RANKING[a];
-  //     const bRank = HAND_TYPE_RANKING[b];
-  //     if (aRank < bRank) {
-  //       return -1;
-  //     }
-  //     if (aRank > bRank) {
-  //       return 1;
-  //     }
-  //     return 0;
-  //   })
-  //   .reduce((obj, key) => {
-  //     obj[key] = handsOrderingMapping[key];
-  //     return obj;
-  //   }, {} as Record<string, string[]>);
+    if (typeA < typeB) return 1;
+    if (typeA > typeB) return -1;
 
-  const handsRankMapping = Object.keys(handsOrderingMapping).reduce(
-    (acc, curr) => {
-      const hands = handsOrderingMapping[curr];
-      const numberOfHandsTypes = Object.keys(handsTypesGrouped).length;
-      const minRank = clamp(HAND_TYPE_RANKING[curr], 1, numberOfHands);
+    return cardOrder(cardsA, cardsB);
+  };
 
-      hands.forEach((h, i) => {
-        const rank = clamp(i + minRank, minRank, numberOfHands);
-        acc[h] = rank;
-      });
-
-      return acc;
-    },
-    {} as Record<string, number>
-  );
-
-  const totalWinnings = Object.keys(handsBidMapping).reduce((acc, curr) => {
-    const bid = parseInt(handsBidMapping[curr], 10);
-    const rank = handsRankMapping[curr];
-    const winnings = bid * rank;
-    return acc + winnings;
-  }, 0);
-
-  const answer = totalWinnings;
+  const answer = handsBids
+    .slice()
+    .sort((a, b) => sortCards(a[0], b[0]))
+    .reduce((acc, v, i) => acc + v[1] * (i + 1), 0);
   return answer;
 };
 
@@ -186,7 +82,53 @@ const part2 = (input: string) => {
     .map((i) => i.trim())
     .filter((i) => i !== "");
 
-  const answer = "N/A";
+  const handsBids = inputs
+    .map((x) => x.split(" "))
+    .map(
+      ([cards, bid]) => <[string[], number]>[cards.split(""), parseInt(bid)]
+    );
+
+  const getCardsTypeIndex = (cardLetters: string[]): number => {
+    const cardsCountLookup = countCards(cardLetters);
+    const notJokersCount = Object.entries(cardsCountLookup)
+      .filter((x) => x[0] !== "J")
+      .map((x) => x[1]);
+
+    return cardsTypesWithJokers.findIndex((x) =>
+      x(notJokersCount, cardsCountLookup["J"] ?? 0)
+    );
+  };
+
+  const cardLettersWithJokersPriority = [
+    ...CARD_LABEL_RANKINGS.filter((x) => x !== "J"),
+    "J",
+  ];
+
+  const cardOrder = (cardsA: string[], cardsB: string[]) => {
+    for (let i = 0; i < 5; i++) {
+      const aIndx = cardLettersWithJokersPriority.indexOf(cardsA[i]);
+      const bIndx = cardLettersWithJokersPriority.indexOf(cardsB[i]);
+
+      if (aIndx < bIndx) return 1;
+      if (aIndx > bIndx) return -1;
+    }
+    return 0;
+  };
+
+  const sortCards = (cardsA: string[], cardsB: string[]) => {
+    const typeA = getCardsTypeIndex(cardsA);
+    const typeB = getCardsTypeIndex(cardsB);
+
+    if (typeA < typeB) return 1;
+    if (typeA > typeB) return -1;
+
+    return cardOrder(cardsA, cardsB);
+  };
+
+  const answer = handsBids
+    .slice()
+    .sort((a, b) => sortCards(a[0], b[0]))
+    .reduce((acc, v, i) => acc + v[1] * (i + 1), 0);
   return answer;
 };
 

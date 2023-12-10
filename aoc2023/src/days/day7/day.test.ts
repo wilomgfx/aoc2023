@@ -25,7 +25,7 @@ describe("Day7", () => {
       expect(part1(input)).toBe(expected);
     });
     it("should return the correct answer for part 1", () => {
-      expect(part1(input)).toBe(45785418);
+      expect(part1(input)).toBe(250474325);
     });
   });
 
@@ -38,11 +38,11 @@ describe("Day7", () => {
       KTJJT 220
       QQQJA 483
       `;
-      const expected = 281;
+      const expected = 5905;
       expect(part2(input)).toBe(expected);
     });
     it("should return the correct answer for part 2", () => {
-      expect(part2(input)).toBe(54249);
+      expect(part2(input)).toBe(248909434);
     });
   });
 });

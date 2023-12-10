@@ -15,32 +15,33 @@ describe("Day8", () => {
       GGG = (GGG, GGG)
       ZZZ = (ZZZ, ZZZ)
       `;
-      const expected = 142;
+      const expected = 2;
       expect(part1(input)).toBe(expected);
     });
     it("should return the correct answer for part 1", () => {
-      expect(part1(input)).toBe(53194);
+      expect(part1(input)).toBe(16271);
     });
   });
 
   describe("Part2", () => {
     it("should return the correct answer for the example provided", () => {
       const input = `
-      RL
+      LR
 
-      AAA = (BBB, CCC)
-      BBB = (DDD, EEE)
-      CCC = (ZZZ, GGG)
-      DDD = (DDD, DDD)
-      EEE = (EEE, EEE)
-      GGG = (GGG, GGG)
-      ZZZ = (ZZZ, ZZZ)
+      11A = (11B, XXX)
+      11B = (XXX, 11Z)
+      11Z = (11B, XXX)
+      22A = (22B, XXX)
+      22B = (22C, 22C)
+      22C = (22Z, 22Z)
+      22Z = (22B, 22B)
+      XXX = (XXX, XXX)
       `;
-      const expected = 281;
+      const expected = 6;
       expect(part2(input)).toBe(expected);
     });
     it("should return the correct answer for part 2", () => {
-      expect(part2(input)).toBe(54249);
+      expect(part2(input)).toBe(14265111103729);
     });
   });
 });
